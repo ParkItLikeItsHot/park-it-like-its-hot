@@ -1,6 +1,12 @@
 # park-it-like-its-hot
 
-## building
+## Code Quality
+    
+- All code should be properly documented using respective standard
+- python uses google style docstrings
+
+
+## Building
 
 - make sure you have installed `npm`, `python` (preferably version 3.14), `flask`, and `opencv` (using pip or otherwise)
 - go to `pilih-frontend` and run `npm install` then `npm build`
