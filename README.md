@@ -1,14 +1,49 @@
 # park-it-like-its-hot
 
-## Code Quality
+## Documentation 
     
 - All code should be properly documented using respective standard
-- python uses google style docstrings
-
+- Python code uses google style docstrings
+- typescript/javascript uses JSDoc (similar to javadoc)
 
 ## Building
 
-- make sure you have installed `npm`, `python` (preferably version 3.14), `flask`, and `opencv` (using pip or otherwise)
-- go to `pilih-frontend` and run `npm install` then `npm build`
-- if you are working on frontend you can use `npm run dev` to work locally with hot reloading
-- if you want to run the whole app locally run `python run.py` in the repository
+I highly recomend you install just and use the just file however if you
+want to do it manually skip the "Using Just File" section and start at "Creating venv"
+
+NOTE: any `npm` are being either being run from inside `pilih-frontend` or are using `npm --prefix pilih-frontend/`
+NOTE: also any `python` commands are either being run after the venv has been activated or being run from their respective binary
+in the `.venv` folder
+
+### Requirements 
+- [nodejs](https://nodejs.org/en) - for npm and running front end dev 
+- [python](https://www.python.org/) - used for backend
+- (optional) [just](https://github.com/casey/just) - one command setup and running
+
+### Using just file
+- run `just install` to install requirements
+
+### Creating venv
+
+- run `python -m venv .venv` to create the venv 
+- then `source .venv/bin/activate` on macos or linux or `.venv\Scripts\Activate.ps1` on windows to activate
+- run `pip install -r requirements.txt` to install the requirements
+
+### Building front end
+
+- go to `pilih-frontend` and run `npm install` to install required libraries (vite, react, and typescript) 
+- run `npm run build` to generate static files into `dist` directory which will be hosted by the flask backend
+
+## Running
+
+### Using Just File
+- run `just frontend` to start a vite dev server and the flask backend
+- run `just backend`  to just start the backend flask server
+
+### Manually
+- run `npm run dev` to start the vite dev server
+- run `python -m flask --app backend/backend.py --debug run` to start the flask app
+
+NOTE: When working on the frontend i recomend you use the vite dev server as it comes with 
+some nice features including hot reloading. If you do this however, you'll need to start 
+the backend seperately.
