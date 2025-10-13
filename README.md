@@ -3,12 +3,12 @@
 ## Documentation 
     
 - All code should be properly documented using respective standard
-- Python code uses google style docstrings
+- Python code uses RST or reStructuredText
 - typescript/javascript uses JSDoc (similar to javadoc)
 
 ## Building
 
-I highly recomend you install just and use the just file however if you
+I highly recommend you install just and use the just file however if you
 want to do it manually skip the "Using Just File" section and start at "Creating venv"
 
 NOTE: any `npm` are being either being run from inside `pilih-frontend` or are using `npm --prefix pilih-frontend/`
@@ -44,6 +44,6 @@ in the `.venv` folder
 - run `npm run dev` to start the vite dev server
 - run `python -m flask --app backend/backend.py --debug run` to start the flask app
 
-NOTE: When working on the frontend i recomend you use the vite dev server as it comes with 
+NOTE: When working on the frontend i recommend you use the vite dev server as it comes with 
 some nice features including hot reloading. If you do this however, you'll need to start 
-the backend seperately.
+the backend separately.
