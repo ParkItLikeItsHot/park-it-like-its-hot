@@ -13,7 +13,7 @@ if car_cascade.empty():
 # For an image:
 # img = cv2.imread('car_image.jpg') 
 # For a video frame (within a loop):
-cap = cv2.VideoCapture(1) # or 0 for webcam
+cap = cv2.VideoCapture(0) # or 0 for webcam
 
 while True:
     ret, frame = cap.read()
