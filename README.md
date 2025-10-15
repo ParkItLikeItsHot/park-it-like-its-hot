@@ -1,18 +1,40 @@
 # park-it-like-its-hot
 
-## Documentation 
-    
-- All code should be properly documented using respective standard
-- Python code uses RST or reStructuredText
-- typescript/javascript uses JSDoc (similar to javadoc)
+## Code Standards
+
+### Python
+
+- In code documentation should be done using RST or reStructuredText
+- ALL classes, functions, and variables are type annotated
+- Indentation is 4 spaces
+- Class and top level functions are surrounded by 2 blank lines
+- Methods are surrounded by a single blank line
+- Class names should be `PascalCase`
+- Function, method, and variable names are `snake_case`
+- Constant and enum member names are `UPPER_SNAKE_CASE`
+- file names are `kebab-case`
+- Other guidelines can be found [here](https://peps.python.org/pep-0008/)
+
+### Javascript / Typescript 
+
+- In code documentation should be done using JSDoc 
+- ALL classes, functions, and variables are type annotated
+- Indentation is 4 spaces
+- Class and top level functions are surrounded by 2 blank lines
+- Methods are surrounded by a single blank line
+- Class names should be `PascalCase`
+- function, method, and variable names are `camelCase`
+- Constant and enum member names are `UPPER_SNAKE_CASE`
+- file names are `kebab-case`
+- Other guidelines can be found [here](https://peps.python.org/pep-0008/)
 
 ## Building
 
 I highly recommend you install just and use the just file however if you
 want to do it manually skip the "Using Just File" section and start at "Creating venv"
 
-NOTE: any `npm` are being either being run from inside `pilih-frontend` or are using `npm --prefix pilih-frontend/`
-NOTE: also any `python` commands are either being run after the venv has been activated or being run from their respective binary
+NOTE: any `npm`  commands are being either being run from inside `pilih-frontend` or are using `npm --prefix pilih-frontend/`
+also any `python` commands are either being run after the venv has been activated or being run from their respective binary
 in the `.venv` folder
 
 ### Requirements 
@@ -26,7 +48,7 @@ in the `.venv` folder
 ### Creating venv
 
 - run `python -m venv .venv` to create the venv 
-- then `source .venv/bin/activate` on macos or linux or `.venv\Scripts\Activate.ps1` on windows to activate
+- then `source .venv/bin/activate` on macos and linux or `.venv\Scripts\Activate.ps1` on windows to activate
 - run `pip install -r requirements.txt` to install the requirements
 
 ### Building front end
@@ -42,7 +64,7 @@ in the `.venv` folder
 
 ### Manually
 - run `npm run dev` to start the vite dev server
-- run `python -m flask --app backend/backend.py --debug run` to start the flask app
+- run `python -m flask --app backend/backend.py --debug run` or simply `python backend/backend.py` to start the flask app
 
 NOTE: When working on the frontend i recommend you use the vite dev server as it comes with 
 some nice features including hot reloading. If you do this however, you'll need to start 
