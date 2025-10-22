@@ -1,7 +1,7 @@
 import cv2 as cv
 
 # load the pre-trained Haar Cascade classifier for car detection
-car_cascade = cv.CascadeClassifier('cars.xml') 
+car_cascade = cv.CascadeClassifier('/Users/gaelvaldez/Documents/GitHub/park-it-like-its-hot/opencv/cars.xml') 
 
 # Check if the cascade file loaded successfully
 if car_cascade.empty():
