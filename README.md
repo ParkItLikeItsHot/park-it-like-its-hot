@@ -30,8 +30,15 @@
 
 ## Building
 
-I highly recommend you install just and use the just file however if you
-want to do it manually skip the "Using Just File" section and start at "Creating venv"
+### Windows
+
+- install wsl by running `wsl`
+- run `wsl --install Ubuntu`
+- run `wsl` again to enter the ubuntu and setup account
+- in the ubuntu shell run `sudo apt install -y python npm nodejs just`
+- follow the rest of the instructions
+
+### Important 
 
 NOTE: any `npm`  commands are being either being run from inside `pilih-frontend` or are using `npm --prefix pilih-frontend/`
 also any `python` commands are either being run after the venv has been activated or being run from their respective binary
@@ -40,10 +47,12 @@ in the `.venv` folder
 ### Requirements 
 - [nodejs](https://nodejs.org/en) - for npm and running front end dev 
 - [python](https://www.python.org/) - used for backend
-- (optional) [just](https://github.com/casey/just) - one command setup and running
+- [just](https://github.com/casey/just) - one command setup and running
 
 ### Using just file
 - run `just install` to install requirements
+
+### Doing it manually
 
 ### Creating venv
 
