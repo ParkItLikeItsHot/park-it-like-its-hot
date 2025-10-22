@@ -1,14 +1,7 @@
 frontend_dir := justfile_directory() / "/pilih-frontend"
 backend_file := justfile_directory() / "/backend/backend.py"
 
-@linux: set shell := ["bash", "-c"]
-@windows: set shell := ["powershell.exe", "-c"]
-
-python_exe := if os_family() == "windows" { 
-  ".venv\\Scripts\\python.exe"
-} else {
-  ".venv/bin/python"
-}
+python_exe :=  ".venv/bin/python"
 
 default: install frontend
 
