@@ -1,4 +1,5 @@
 import cv2
+import math
 
 # Face detection for testing
 car_cascade = cv2.CascadeClassifier(
@@ -19,15 +20,13 @@ if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
 
-
-def find_center_x(x, w):
-    return (x + (w // 2))
-
-center_x_list = [None, None, None]
-previous_center_x = None
-
-
-cars_detected = 0
+# --- Tracking variables ---
+tracked_objects = []
+next_object_id = 0
+# Max distance in pixels to consider a detection the same object
+DIST_THRESHOLD = 75  
+# Max number of frames to keep tracking an object without seeing it
+FRAMES_TO_LIVE = 10   
 
 
 while True:
@@ -38,49 +37,54 @@ while True:
     # Convert the frame to grayscale for cascade detection
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+    # Age all tracked objects. If an object is not seen in the current frame,
+    # this counter will increase.
+    for obj in tracked_objects:
+        obj['frames_since_seen'] += 1
+
     # Detect cars in the grayscale image
-    cars = car_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(60, 60))
-    print(f"Detected {cars} cars")
-    
-    if len(cars) != 0:
-        cars_detected += len(cars)
-    
-    print(f"Detected {len(cars)} cars")
-    print(f"Car coordinates: {cars}")
-    # Draw rectangles around the detected cars
-    # x, y is the top left corner, w, h is width and height of the rectangle
-    
+    detections = car_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
 
-    for (x, y, w, h) in cars:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2) # Green rectangle, thickness 2
-        current_center_x = int(find_center_x(x, w))
-        print(f"Center X of car: {current_center_x}")
+    current_detections = []
+    for (x, y, w, h) in detections:
+        center_x = x + w // 2
+        center_y = y + h // 2
+        current_detections.append({'box': (x, y, w, h), 'center': (center_x, center_y)})
 
-        # compute delta against previous center if available
-        center_x_list.append(current_center_x)
-        # keep last 3 values
-        center_x_list = center_x_list[-3:]
+    # Match detections to existing tracked objects
+    for detection in current_detections:
+        found_match = False
+        for obj in tracked_objects: # Create a distance value with hypotenuse from the center points of the tracked object (from last frame) and the detected object (from current frame)
+            dist = math.hypot(obj['center'][0] - detection['center'][0], obj['center'][1] - detection['center'][1])
+            if dist < DIST_THRESHOLD:
+                # This is the same object
+                obj['center'] = detection['center']
+                obj['box'] = detection['box']
+                obj['frames_since_seen'] = 0
+                found_match = True
+                break
+        
+        if not found_match:
+            # This is a new object
+            tracked_objects.append({
+                'id': next_object_id,
+                'box': detection['box'],
+                'center': detection['center'],
+                'frames_since_seen': 0
+            })
+            next_object_id += 1
 
-        center_x_delta = None
-        direction = 'unknown'
-        if previous_center_x is not None:
-            center_x_delta = current_center_x - previous_center_x
-            if center_x_delta > 0:
-                direction = 'right'
-            elif center_x_delta < 0:
-                direction = 'left'
-            else:
-                direction = 'stationary'
+    # Remove old tracks that haven't been seen for a while
+    tracked_objects = [obj for obj in tracked_objects if obj['frames_since_seen'] < FRAMES_TO_LIVE]
 
-        # log delta and direction
-        print(f"center_x_delta: {center_x_delta}, direction: {direction}")
-
-        # update previous_center_x for next detection
-        previous_center_x = current_center_x
-    
+    # Draw rectangles and IDs for tracked objects
+    for obj in tracked_objects:
+        (x, y, w, h) = obj['box']
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cv2.putText(frame, f"ID: {obj['id']}", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     # Display the result
-    cv2.imshow('Car Detection', frame)
+    cv2.imshow('Object Tracking', frame)
 
     # Break the loop on 'q' key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -89,4 +93,3 @@ while True:
 # Release resources
 cap.release()
 cv2.destroyAllWindows()
-print(f"Total cars detected during session: {cars_detected}")
