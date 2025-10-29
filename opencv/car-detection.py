@@ -28,12 +28,16 @@ DIST_THRESHOLD = 75
 # Max number of frames to keep tracking an object without seeing it
 FRAMES_TO_LIVE = 10   
 
+cars_in_parking_lot = 0
+
 
 while True:
     ret, frame = cap.read()
     if not ret:
         break
 
+    height, width = frame.shape[:2]
+    tracking_line_x = width // 2
     # Convert the frame to grayscale for cascade detection
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -52,27 +56,55 @@ while True:
         current_detections.append({'box': (x, y, w, h), 'center': (center_x, center_y)})
 
     # Match detections to existing tracked objects
-    for detection in current_detections:
-        found_match = False
-        for obj in tracked_objects: # Create a distance value with hypotenuse from the center points of the tracked object (from last frame) and the detected object (from current frame)
-            dist = math.hypot(obj['center'][0] - detection['center'][0], obj['center'][1] - detection['center'][1])
-            if dist < DIST_THRESHOLD:
-                # This is the same object
-                obj['center'] = detection['center']
-                obj['box'] = detection['box']
-                obj['frames_since_seen'] = 0
-                found_match = True
-                break
-        
-        if not found_match:
-            # This is a new object
-            tracked_objects.append({
-                'id': next_object_id,
-                'box': detection['box'],
-                'center': detection['center'],
-                'frames_since_seen': 0
-            })
-            next_object_id += 1
+        for detection in current_detections:
+            found_match = False
+            for obj in tracked_objects: # Create a distance value with hypotenuse from the center points of the tracked object (from last frame) and the detected object (from current frame)
+                dist = math.hypot(obj['center'][0] - detection['center'][0], obj['center'][1] - detection['center'][1])
+                if dist < DIST_THRESHOLD:
+                    # This is the same object
+                    obj['delta_x'] = detection['center'][0] - obj['center'][0]
+                    obj['center'] = detection['center']
+                    obj['box'] = detection['box']
+                    obj['frames_since_seen'] = 0
+                    found_match = True
+                    break
+            
+            if not found_match:
+                # This is a new object
+                tracked_objects.append({
+                    'id': next_object_id,
+                    'box': detection['box'],
+                    'crossed': False,
+                    'list_of_directions': [],
+                    'center': detection['center'],
+                    'frames_since_seen': 0,
+                    'delta_x': 0
+                })
+                next_object_id += 1    
+    # Check for objects crossing the tracking line
+    for obj in tracked_objects:
+        (x, y, w, h) = obj['box']
+        obj_center_x = x + w // 2
+
+        # Draw tracking line
+        cv2.line(frame, (tracking_line_x, 0), (tracking_line_x, height), (255, 0, 0), 2)
+        # Check if the object has crossed the line
+        if abs(obj_center_x - tracking_line_x) < 20 and obj['frames_since_seen'] == 0 and obj['crossed'] != True: #only tracks if it is currently within 20 pixels of tracking line
+            if obj['crossed'] == False: # ensures we only count once
+                obj['crossed'] = True
+            print(f"Object ID {obj['id']} crossed the line.")
+
+            # this is where i can write an if statement to check which direction it came from by averaging the list of directions
+            # average out the list of directions and check if it is positive or negative
+            if obj['list_of_directions'] and len(obj['list_of_directions']) > 15: #ensures only counts if there is enough data to make a decision, filtering out random objects
+                avg_direction = sum(obj['list_of_directions']) / len(obj['list_of_directions'])
+                if avg_direction > 0:
+                    print(f"Object ID {obj['id']} is moving Right, one car added to parking lot.")
+                    cars_in_parking_lot += 1
+                elif avg_direction < 0:
+                    print(f"Object ID {obj['id']} is moving Left, one car removed from parking lot.")
+                    cars_in_parking_lot -= 1
+
 
     # Remove old tracks that haven't been seen for a while
     tracked_objects = [obj for obj in tracked_objects if obj['frames_since_seen'] < FRAMES_TO_LIVE]
@@ -82,6 +114,25 @@ while True:
         (x, y, w, h) = obj['box']
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
         cv2.putText(frame, f"ID: {obj['id']}", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        direction = ""
+        # A small threshold to prevent jitter from being reported as movement
+
+        if obj.get('delta_x', 0) > 2:
+            direction = "Right"
+            # append direction (1) instead of replacing the list
+            obj.setdefault('list_of_directions', []).append(1)
+
+        elif obj.get('delta_x', 0) < -2:
+            direction = "Left"
+            # append direction (-1) instead of replacing the list
+            obj.setdefault('list_of_directions', []).append(-1)
+            
+            
+        
+        if direction:
+            # Display the direction below the bounding box
+            cv2.putText(frame, direction, (x, y + h + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2) #temporary, don't need visuals
 
     # Display the result
     cv2.imshow('Object Tracking', frame)
@@ -93,3 +144,4 @@ while True:
 # Release resources
 cap.release()
 cv2.destroyAllWindows()
+print(f"Total cars in parking lot: {cars_in_parking_lot}")
