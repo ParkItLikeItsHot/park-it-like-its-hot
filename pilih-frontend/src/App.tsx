@@ -1,10 +1,10 @@
 import './App.css'
+import AmountOfCars from './components/amountOfCars.tsx'
 
 function App() {
-
   return (
     <>
-      <p>Testing</p>
+      <AmountOfCars />
     </>
   )
 }
