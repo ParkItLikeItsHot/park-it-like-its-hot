@@ -1,19 +1,35 @@
-frontend_dir := justfile_directory() / "/pilih-frontend"
-backend_file := justfile_directory() / "/backend/backend.py"
+root_dir := justfile_directory()
+frontend_dir := root_dir / "/pilih-frontend"
+backend_file := root_dir / "/backend/backend.py"
+python_exe :=  root_dir / "/.venv/bin/python"
+docker_dir := root_dir / "/dockerfiles"
+frontend_docker_image_name := "pilih-frontend"
+backend_docker_image_name := "pilih-backend"
 
-python_exe :=  ".venv/bin/python"
+default: install frontend-dev
 
-default: install frontend
+
+build-dockerfiles: build-frontend-dockerfile build-backend-dockerfile
+
+build-frontend-dockerfile:
+  npm --prefix {{ frontend_dir }} run build
+  cp {{ frontend_dir / "dist" }} {{ docker_dir / "/pilih-frontend" }}
+  docker build -t {{ frontend_docker_image_name }} {{ docker_dir / "pilih-frontend" }}
+  
+build-backend-dockerfile:
+  cp {{ backend_file }} {{ docker_dir / "/pilih-backend" }}
+  docker build -t {{ backend_docker_image_name }} {{ docker_dir / "pilih-backend" }}
+
 
 [parallel]
-frontend: run-dev backend
+run-dev: frontend-dev backend-dev
 
 install: setup-python setup-npm
 
-run-dev:
+frontend-dev:
   npm --prefix {{ frontend_dir }} run dev
 
-backend: build-frontend
+backend-dev: build-frontend
   {{ python_exe }} -m flask --app {{backend_file}} --debug run
 
 build-frontend:
