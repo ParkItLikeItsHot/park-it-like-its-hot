@@ -12,6 +12,9 @@ pilih-frontend/lerna-debug.log*
 # build artifacts and folders
 pilih-frontend/node_modules
 pilih-frontend/dist
+pilih-frontend/package-lock.json
+.python-version
+.DS_Store
 pilih-frontend/dist-ssr
 pilih-frontend/*.local
 .env
