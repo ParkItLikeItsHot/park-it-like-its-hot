@@ -1,6 +1,6 @@
 import cv2 as cv
 
-img = cv.VideoCapture(1)
+img = cv.VideoCapture(0)
 
 if not img.isOpened():
     print("Error: Could not open webcam.")

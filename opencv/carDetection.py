@@ -15,7 +15,7 @@ if not cap.isOpened():
     exit()
 
 
-def find_center_x(x, w):
+def findCenterX(x, w):
     return (x + (w // 2))
 
 center_x_list = [0, 0, 0]
@@ -32,7 +32,7 @@ while True:
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
     # Detect cars in the grayscale image
-    cars = car_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(60, 60))
+    cars = car_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(70, 70))
     print(f"Detected {len(cars)} cars")
     print(f"Car coordinates: {cars}")
     # Draw rectangles around the detected cars
@@ -41,8 +41,8 @@ while True:
 
     for (x, y, w, h) in cars:
         cv.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2) # Green rectangle, thickness 2
-        print(f"Center X of car: {find_center_x(x, w)}")
-        center_x_list.append(int(find_center_x(x, w)))
+        print(f"Center X of car: {findCenterX(x, w)}")
+        center_x_list.append(int(findCenterX(x, w)))
         print(f"Center X list: {center_x_list}")
     
 
