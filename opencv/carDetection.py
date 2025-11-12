@@ -3,9 +3,7 @@ import cv2 as cv
 import numpy as np
 
 # load the pre-trained Haar Cascade classifier for car detection
-car_cascade = cv.CascadeClassifier(
-    "/Users/gaelvaldez/Documents/GitHub/park-it-like-its-hot/opencv/cars.xml"
-)
+car_cascade = cv.CascadeClassifier("cars.xml")
 
 # Check if the cascade file loaded successfully
 if car_cascade.empty():
@@ -27,7 +25,7 @@ while True:
     if not ret:
         break
 
-    # Convert the frame to grayscale for cascade detection
+    # Convert the frame to grayscale for cascade detection, blur it, and dilate it
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     blur = cv.GaussianBlur(gray, (5, 5), 0)
     dilated = cv.dilate(blur, np.ones((3, 3)))
@@ -36,7 +34,7 @@ while True:
 
     # Detect cars in the grayscale image
     cars = car_cascade.detectMultiScale(
-        gray, scaleFactor=1.1, minNeighbors=1, minSize=(70, 70)
+        closing, scaleFactor=1.1, minNeighbors=4, minSize=(70, 70)
     )
     # Draw rectangles around the detected cars
     # x, y is the top left corner, w, h is width and height of the rectangle
