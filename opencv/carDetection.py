@@ -12,9 +12,10 @@ if car_cascade.empty():
     )
 
 # Read the image or video frame
-cap = cv.VideoCapture(
-    "/Users/gaelvaldez/Documents/GitHub/park-it-like-its-hot/opencv/video.avi"
-)
+# cap = cv.VideoCapture(
+#     "/Users/gaelvaldez/Documents/GitHub/park-it-like-its-hot/opencv/video.avi"
+# )
+cap = cv.VideoCapture(1)
 
 if not cap.isOpened():
     print("Error: Could not open webcam.")
@@ -37,7 +38,9 @@ while True:
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
     # Detect cars in the grayscale image
-    cars = car_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+    cars = car_cascade.detectMultiScale(
+        gray, scaleFactor=1.1, minNeighbors=6, minSize=(40, 30)
+    )
     # Draw rectangles around the detected cars
     # x, y is the top left corner, w, h is width and height of the rectangle
 
