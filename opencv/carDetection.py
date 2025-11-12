@@ -1,4 +1,6 @@
+from PIL import Image
 import cv2 as cv
+import numpy as np
 
 # load the pre-trained Haar Cascade classifier for car detection
 car_cascade = cv.CascadeClassifier(
@@ -13,18 +15,11 @@ if car_cascade.empty():
 
 # Read the image or video frame
 
-cap = cv.VideoCapture(1)
+cap = cv.VideoCapture(0)
 
 if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
-
-
-def findCenterX(x, w):
-    return x + (w // 2)
-
-
-center_x_list = [0, 0, 0]
 
 
 while True:
@@ -34,10 +29,14 @@ while True:
 
     # Convert the frame to grayscale for cascade detection
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    blur = cv.GaussianBlur(gray, (5, 5), 0)
+    dilated = cv.dilate(blur, np.ones((3, 3)))
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2, 2))
+    closing = cv.morphologyEx(dilated, cv.MORPH_CLOSE, kernel)
 
     # Detect cars in the grayscale image
     cars = car_cascade.detectMultiScale(
-        gray, scaleFactor=1.1, minNeighbors=10, minSize=(60, 60)
+        gray, scaleFactor=1.1, minNeighbors=1, minSize=(70, 70)
     )
     # Draw rectangles around the detected cars
     # x, y is the top left corner, w, h is width and height of the rectangle
@@ -46,13 +45,13 @@ while True:
         cv.rectangle(
             frame, (x, y), (x + w, y + h), (0, 255, 0), 2
         )  # Green rectangle, thickness 2
+        cv.imshow("Car Detection", frame)
+
         cv.putText(
             frame, "Car", (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2
         )
 
     # Display the result
-    cv.imshow("Car Detection", frame)
-
     # Break the loop on 'q' key press
     if cv.waitKey(1) & 0xFF == ord("q"):
         break
