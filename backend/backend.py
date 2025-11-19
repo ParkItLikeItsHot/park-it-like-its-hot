@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+from flask.json import jsonify
 import requests
 from ipaddress import IPv4Address
 import json
@@ -13,7 +15,7 @@ from flask.globals import request
 
 app = flask.Flask(__name__, static_folder="../pilih-frontend/dist")
 logger = logging.getLogger(__name__)
-
+logger.addHandler(logging.StreamHandler(sys.stdout))
 
 class Lot:
     name: str
@@ -60,9 +62,13 @@ class ParkingLots:
                 return lot
         return None
 
-    def update_fill(self, fill_level: int, short_name: str | None, name: str | None):
-        if short_name != None:
-            
+    def update_fill(self, fill_level: int, short_name: str | None = None, name: str | None = None):
+        if short_name is not None:
+            if lot := self.get_lot_by_short_name(short_name): lot.set_fill(fill_level)
+        elif name is not None:
+            if lot := self.get_lot_by_name(name): lot.set_fill(fill_level)
+        else:
+            logger.error(f"tried to set fill level of unknown lot `{short_name if short_name else name}`")
 
 
 
@@ -76,28 +82,29 @@ def get_fill():
     if lot_json["short_name"]:
         lot = lots.get_lot_by_short_name(lot_json["short_name"]) 
         if lot != None:
-            return json.dumps(lot.to_dict()) 
+            return jsonify(lot.to_dict()) 
     elif lot_json["name"]:
         lot = lots.get_lot_by_name(lot_json["name"])
         if lot != None:
-            return json.dumps(lot.to_dict()) 
+            return jsonify(lot.to_dict()) 
 
-    return json.dumps({"error": "Could not find lot"}), 400
-
-
+    return jsonify({"error": "Could not find lot"}), 400
 
 
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
-def serve_static(path: str):
-        
-    if app.static_folder == None:
-        return '{"error": "Static folder not set"}', 500
 
-    if path != "" and Path(app.static_folder).joinpath(path).exists():
-        return flask.send_from_directory(app.static_folder, path)
-    else:
-        return flask.send_from_directory(app.static_folder, "index.html")
+
+# @app.route("/", defaults={"path": ""})
+# @app.route("/<path:path>")
+# def serve_static(path: str):
+#
+#     if app.static_folder == None:
+#         return '{"error": "Static folder not set"}', 500
+#
+#     if path != "" and Path(app.static_folder).joinpath(path).exists():
+#         return flask.send_from_directory(app.static_folder, path)
+#     else:
+#         return flask.send_from_directory(app.static_folder, "index.html")
+
 
 lots = ParkingLots()
 
@@ -106,18 +113,23 @@ def update_lots(servers: list[str]):
         logger.info("impl update_lots")
        
         for server in servers:
-            res = requests.get(server + '/update')
+            try:
+                res = requests.get(server + '/cars-in-parking-lot')
+            except requests.exceptions.ConnectionError:
+                logger.error(f"Could not connect to server {server}")
+                continue
+
             if res.status_code != 200:
-                logger.error(f"failed get from {server} with code {res.status_code}")
+                logger.error(f"Failed get from {server} with code {res.status_code}")
                 continue
             try:
                 data = res.json()
             except json.JSONDecodeError:
-                logger.error(f"response from {server} was not valid json")
+                logger.error(f"Response from {server} was not valid json")
                 continue
                 
             if data['fill_level'] == None:
-                logger.error(f"response from {server} did not provide fill level")
+                logger.error(f"Response from {server} did not provide fill level")
                 continue
 
             if data['short_name'] != None:
@@ -125,16 +137,15 @@ def update_lots(servers: list[str]):
             elif data['name'] != None:
                 lots.update_fill(data['fill_level'], name=data['name'])
             else:
-                logger.error(f"response from {server} did not provide a name or short_name")
+                logger.error(f"Response from {server} did not provide a name or short_name")
                 continue
 
-
         time.sleep(120)
-        pass
 
 if __name__ == "__main__":
-    addrs = ["127.0.0.1:6969"]
-    threading.Thread(target=update_lots, args=(addrs)).start()
+    addrs = ["http://127.0.0.1:6767"]
+    lots.add_lot("Lot 1", "L1")
+    threading.Thread(target=update_lots, args=(addrs,)).start()
     
     app.run(debug=True)    
 

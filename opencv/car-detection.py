@@ -165,7 +165,7 @@ def get_cars_in_parking_lot():
     """
     This endpoint returns the current number of cars in the parking lot.
     """
-    return jsonify({'cars_in_parking_lot': cars_in_parking_lot})
+    return jsonify({'short_name': 'L1', 'cars_in_parking_lot': cars_in_parking_lot})
 
 # --- Main Execution ---
 if __name__ == '__main__':
