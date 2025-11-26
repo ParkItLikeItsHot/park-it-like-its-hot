@@ -1,0 +1,77 @@
+:root {
+  --theme-orange: #FF9F1C;
+  --theme-blue: #011627;
+  --theme-light-blue: #2EC4B6;
+  --theme-white: #FDFFFC;
+  --theme-red: #E71D36;
+}
+
+.parking-card {
+  background: var(--theme-blue);
+  color: var(--theme-white);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.parking-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: var(--theme-light-blue);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.parking-status {
+  margin-bottom: 2rem;
+}
+
+.count-display {
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--theme-orange);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.max-capacity {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.progress-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  height: 30px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  margin-top: 1rem;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, var(--theme-orange), #FFBF69);
+  height: 100%;
+  border-radius: 15px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 15px rgba(255, 159, 28, 0.5);
+}
+
+.error-message {
+  background: rgba(231, 29, 54, 0.1);
+  color: var(--theme-red);
+  padding: 0.5rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.loading-text {
+  color: var(--theme-light-blue);
+  font-style: italic;
+}

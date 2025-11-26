@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./AmountOfCars.css";
 
 const AmountOfCars: React.FC = () => {
   const [carCount, setCarCount] = useState<number | null>(null);
@@ -36,25 +37,31 @@ const AmountOfCars: React.FC = () => {
   }, []);
 
   const maxCars = 5; // Set your max cars value here
+  const percentage = Math.min(100, Math.max(0, ((carCount ?? 0) / maxCars) * 100));
 
   return (
-    <div>
-      <h2>
-        Amount of Cars in Parking Lot: {carCount === null ? "Loading..." : `${carCount} / ${maxCars}`}
-      </h2>
-      {error && <p style={{ color: "red" }}>Error: {error}</p>}
+    <div className="parking-card">
+      <h2 className="parking-title">Parking Status</h2>
+      
+      {carCount === null ? (
+        <div className="loading-text">Connecting to sensors...</div>
+      ) : (
+        <div className="parking-status">
+          <div className="count-display">{carCount}</div>
+          <div className="max-capacity">out of {maxCars} spots occupied</div>
+        </div>
+      )}
 
-      <div
-        className="progress"
-        role="progressbar"
-        aria-label="Basic example"
-        aria-valuenow={carCount ?? 0}
-        aria-valuemin={0}
-        aria-valuemax={maxCars}
-      >
+      {error && <div className="error-message">Connection Error: {error}</div>}
+
+      <div className="progress-container">
         <div
-          className="progress-bar"
-          style={{ width: `${((carCount ?? 0) / maxCars) * 100}%` }}
+          className="progress-fill"
+          style={{ width: `${percentage}%` }}
+          role="progressbar"
+          aria-valuenow={carCount ?? 0}
+          aria-valuemin={0}
+          aria-valuemax={maxCars}
         ></div>
       </div>
     </div>
